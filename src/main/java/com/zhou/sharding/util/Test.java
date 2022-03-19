@@ -5,7 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.zhou.sharding.entity.UserInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -15,7 +17,8 @@ import java.util.UUID;
 @Slf4j
 public class Test {
     public static void main(String[] args) {
-        new Test().get();
+        String[] strings = HttpClient.sendHttp("https://www.jianshu.com/shakespeare/v2/notes/90dce199022f/book", null, new HashMap<>(), HttpMethod.GET, 10);
+        System.out.println(strings[1]);
     }
 
     public void insert() {
