@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: sharding
+  jackson:
+    #设置时间格式，时差
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  shardingsphere:
+    datasource:
+      # 注意！！！数据库名称不要有下划线(若必须有下划线，则需要自行装配配置)
+      names: shardingdb0,shardingdb1
+      shardingdb0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://124.221.105.5:3306/shardingdb0?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+        username: root
+        password: bh89757_zwy
+        #连接池的设置
+        #初始化时建立物理连接的个数
+        initial-size: 5
+        #最小连接池数量
+        min-idle: 5
+        #最大连接池数量 maxIdle已经不再使用
+        max-active: 20
+        #获取连接时最大等待时间，单位毫秒
+        max-wait: 60000
+        #申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
+        test-while-idle: true
+        #用来检测连接是否有效的sql 必须是一个查询语句
+        #mysql中为 select 'x'
+        #oracle中为 select 1 from dual
+        validation-query: select 'x'
+        #申请连接时会执行validationQuery检测连接是否有效,开启会降低性能,默认为true
+        test-on-borrow: false
+        #归还连接时会执行validationQuery检测连接是否有效,开启会降低性能,默认为true
+        test-on-return: false
+        #是否缓存preparedStatement,mysql5.5+建议开启
+        pool-prepared-statements: true
+      shardingdb1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://124.221.105.5:3306/shardingdb1?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+        username: root
+        password: bh89757_zwy
+        initial-size: 5
+        min-idle: 5
+        max-active: 20
+        max-wait: 60000
+        test-while-idle: true
+        validation-query: select 'x'
+        test-on-borrow: false
+        test-on-return: false
+        pool-prepared-statements: true
+    # sharding4.x官方文档 https://shardingsphere.apache.org/document/legacy/4.x/document/cn/manual/sharding-jdbc/usage/sharding/
+    # 分库分表具体 : https://zhuanlan.zhihu.com/p/272629526
+    sharding:
+      tables:
+        user_info:
+          actual-data-nodes: shardingdb0.user_info_$->{0..3}
+          table-strategy:
+            standard:
+              sharding-column: user_id
+              precise-algorithm-class-name: com.zhou.sharding.config.sharding.UserInfoTableAlgorithm
+      master-slave-rules:
+        shardingdb0:
+          master-data-source-name: shardingdb0
+          slave-data-source-names: shardingdb1
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
